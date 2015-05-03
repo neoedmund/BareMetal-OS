@@ -5,6 +5,9 @@
 ; COMMAND LINE INTERFACE
 ; =============================================================================
 
+extern memtest_main
+
+
 align 16
 db 'DEBUG: CLI      '
 align 16
@@ -37,7 +40,15 @@ os_command_line:
 	mov rdi, cls_string		; 'CLS' entered?
 	call os_string_compare
 	jc near clear_screen
-
+	
+	mov rdi, memtest_string		;  
+	call os_string_compare
+	jnc .next
+	mov rsi, neos_text
+	call os_output
+	call memtest_main
+	jmp os_command_line
+.next:
 	mov rdi, dir_string		; 'DIR' entered?
 	call os_string_compare
 	jc near dir
@@ -77,6 +88,9 @@ os_command_line:
 	call os_file_close
 	call programlocation		; Call the program just loaded
 	jmp os_command_line		; Jump back to the CLI on program completion
+
+
+
 
 fail:					; We didn't get a valid command or program name
 	mov rsi, not_found_msg
@@ -167,9 +181,11 @@ exit:
 	debug_string		db 'debug', 0
 	reboot_string		db 'reboot', 0
 	testzone_string		db 'testzone', 0
+	memtest_string		db 'memtest', 0
 
 	appextension:		db '.app', 0
 	prompt:			db '> ', 0
+	neos_text: db 'starting neos', 13,  0
 
 ; -----------------------------------------------------------------------------
 ; os_string_find_char -- Find first location of character in a string

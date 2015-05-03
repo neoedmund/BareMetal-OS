@@ -7,10 +7,15 @@
 
 
 USE64
-ORG 0x0000000000100000
+;ORG 0x0000000000100000
 
 %DEFINE BAREMETALOS_VER 'v0.6.1 (August 19, 2013)', 13, 'Copyright (C) 2008-2013 Return Infinity', 13, 0
 %DEFINE BAREMETALOS_API_VER 2
+
+global kernel_start
+global asm_writeU64
+global asm_verifyU64
+global asm_test
 
 kernel_start:
 	jmp start			; Skip over the function call index
@@ -138,7 +143,52 @@ ap_process:				; Set the status byte to "Busy" and run the code
 
 	jmp ap_clear			; Reset the stack, clear the registers, and wait for something else to work on
 
-
+;====
+asm_disable_cpu_cache:
+	push rax
+	mov rax, cr0
+	btr rax, 29			; Clear No Write Thru (Bit 29)
+	bts rax, 30			; Set Cache Disable (Bit 30)
+	mov cr0, rax
+	pop rax
+	ret
+asm_enable_cpu_cache:
+	push rax
+	mov rax, cr0
+	btr rax, 29			; Clear No Write Thru (Bit 29)
+	btr rax, 30			; Clear CD (Bit 30)
+	mov cr0, rax
+	pop rax
+	ret
+asm_writeU64:
+	push rcx
+	push rdi
+	;mov rdi, rdi ; param 1:pos
+	mov rcx, rsi ; param 2:cnt
+	mov rax, rdx ; param 3:value
+	;call os_debug_dump_reg
+	rep stosq
+	mov rax, rcx
+	pop rdi
+	pop rcx
+	ret
+asm_verifyU64:
+	push rcx
+	push rdi
+	;mov rdi, rdi ; param 1:pos
+	mov rcx, rsi ; param 2:cnt
+	mov rax, rdx ; param 3:value
+	;call os_debug_dump_reg
+	rep scasq
+	mov rax, rcx
+	pop rdi
+	pop rcx
+	ret
+asm_test:
+	call os_debug_dump_reg
+	mov rax, 4
+	ret
+;====
 ; Includes
 %include "init.asm"
 %include "syscalls.asm"

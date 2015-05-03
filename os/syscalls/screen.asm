@@ -9,7 +9,7 @@ align 16
 db 'DEBUG: SCREEN   '
 align 16
 
-
+global os_dec_cursor
 ; -----------------------------------------------------------------------------
 ; os_inc_cursor -- Increment the cursor by one, scroll if needed
 ;  IN:	Nothing
