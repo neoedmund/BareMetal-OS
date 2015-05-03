@@ -338,7 +338,7 @@ void testFreeMem() {
 	printTestingMempart();
 	int i=0;
 	int j=0;
-	for (i=1;i<FreeMemArrCnt;i++) { //FIXME 1->0
+	for (i=0;i<FreeMemArrCnt;i++) { 
 		struct mempart *mp = & FreeMemArr[i];
 		if (mp->len==0) continue;
 		j++;
