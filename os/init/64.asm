@@ -274,13 +274,14 @@ init_memory_map:			; Build the OS memory table
 	; The CLI should take care of the Application memory
 
 	; Allocate memory for CPU stacks (2 MiB's for each core)
-	xor rcx, rcx
-	mov cx, [os_NumCores]		; Get the amount of cores in the system
-	call os_mem_allocate		; Allocate a page for each core
-	cmp rcx, 0			; os_mem_allocate returns 0 on failure
-	je system_failure
-	add rax, 2097152
-	mov [os_StackBase], rax		; Store the Stack base address
+;;	xor rcx, rcx
+;;	mov cx, [os_NumCores]		; Get the amount of cores in the system
+;;	call os_mem_allocate		; Allocate a page for each core
+;;	cmp rcx, 0			; os_mem_allocate returns 0 on failure
+;;	je system_failure
+;;	add rax, 2097152
+	mov rax, 0x200000
+	mov [os_StackBase], rax ;neoe  ; Store the Stack base address
 
 	pop rdi
 	pop rcx

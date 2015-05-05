@@ -48,6 +48,7 @@ kernel_start:
 	align 16
 
 start:
+	
 	call init_64			; After this point we are in a working 64-bit environment
 	call init_pci			; Initialize the PCI bus
 	call init_hdd			; Initialize the disk
@@ -75,7 +76,7 @@ start:
 align 16
 
 ap_clear:				; All cores start here on first start-up and after an exception
-
+	
 	cli				; Disable interrupts on this core
 
 	; Get local ID of the core
@@ -90,10 +91,12 @@ ap_clear:				; All cores start here on first start-up and after an exception
 	add rdi, rax			; RDI points to this cores status byte (we will clear it later)
 
 	; Set up the stack
-	shl rax, 21			; Shift left 21 bits for a 2 MiB stack
-	add rax, [os_StackBase]		; The stack decrements when you "push", start at 2 MiB in
+	shl rax, 10; 10 for 1KB  ;21			; Shift left 21 bits for a 2 MiB stack
+	mov rdx, [os_StackBase]
+	sub rdx, rax,
+	mov rax, rdx
 	sub rax, 8
-	mov rsp, rax
+;;	mov rsp, rax ;; dummy, don't change
 
 	; Set the CPU status to "Present" and "Ready"
 	mov al, 00000001b		; Bit 0 set for "Present", Bit 1 clear for "Ready"
@@ -117,6 +120,7 @@ ap_clear:				; All cores start here on first start-up and after an exception
 	xor r13, r13
 	xor r14, r14
 	xor r15, r15
+	
 
 ap_spin:				; Spin until there is a workload in the queue
 	cmp word [os_QueueLen], 0	; Check the length of the queue
@@ -144,22 +148,6 @@ ap_process:				; Set the status byte to "Busy" and run the code
 	jmp ap_clear			; Reset the stack, clear the registers, and wait for something else to work on
 
 ;====
-asm_disable_cpu_cache:
-	push rax
-	mov rax, cr0
-	btr rax, 29			; Clear No Write Thru (Bit 29)
-	bts rax, 30			; Set Cache Disable (Bit 30)
-	mov cr0, rax
-	pop rax
-	ret
-asm_enable_cpu_cache:
-	push rax
-	mov rax, cr0
-	btr rax, 29			; Clear No Write Thru (Bit 29)
-	btr rax, 30			; Clear CD (Bit 30)
-	mov cr0, rax
-	pop rax
-	ret
 asm_writeU64:
 	push rcx
 	push rdi
@@ -183,10 +171,6 @@ asm_verifyU64:
 	mov rax, rcx
 	pop rdi
 	pop rcx
-	ret
-asm_test:
-	call os_debug_dump_reg
-	mov rax, 4
 	ret
 ;====
 ; Includes

@@ -24,21 +24,12 @@ static int error =0 ;
 
 U32 memtest_main()
 {
-	b_output("(My) Real OS from here(C)!\n");
-	printe820();
-
-	U32* memsize = (U32*) 0x5020;
-	char buf[100];
-	str_long2dec( (*memsize), buf);
-	b_output("memsize in MB:");
-	b_output(buf);
-	b_output("\n");
+	//U32* memsize = (U32*) 0x5020;
+	//str_long2dec( (*memsize), buf);
+	//b_output("memsize MB:");
+	//b_output(buf);
+	//b_output("\n");
 	memtest();
-	U64 ret = asm_test(0x140000000,2,3);
-	str_long2dec(ret, buf);
-	b_output("ret=");
-	b_output(buf);
-	b_output("\n");
 	return 0;
 }
 
@@ -48,9 +39,12 @@ struct mempart {
 	U64 len;
 };
 
-// 100 is enough
-struct mempart FreeMemArr[100];
-int FreeMemArrCnt=0;
+// 50  is enough?
+
+#define MAX_MEM_ARR 40
+
+static struct mempart FreeMemArr[MAX_MEM_ARR];
+static int FreeMemArrCnt=0;
 
 struct e820slot {
 	U64 startAddr;
@@ -99,7 +93,6 @@ void str_long2dec(U32 v, char* buf) {
 
 void printe820slot(struct e820slot* slot) {
 	//printf("%lx\t%ld\t%s\n", slot->startAddr, slot->len, slot->usable==1?"OK":"NG");
-	char buf[100];
 	str_long2hex(slot->startAddr, buf);
 	b_output(buf);
 	b_output("    ");
@@ -107,9 +100,9 @@ void printe820slot(struct e820slot* slot) {
 	b_output(buf);
 	b_output("    ");
 	if ( slot->usable==1 ){
-		b_output("OK");
+		b_output("O");
 	} else {
-		b_output("NG");
+		b_output("-");
 	}
 	b_output("\n");
 }
@@ -118,18 +111,24 @@ void printe820(){
 	FreeMemArrCnt=0;
 	U64 mp = 0x0000000000004000L;
 	struct e820slot* slot = (struct e820slot*) mp;
+	U64 totalLen = 0;
 	while(1) {
 		printe820slot(slot);
+		
 		{ // add to FreeMem
 			if (slot->usable==1){
+				if (FreeMemArrCnt >= MAX_MEM_ARR) {
+					b_output("no more slot 1!\n");
+					while(1){};
+				}
 				FreeMemArr[FreeMemArrCnt].startAddr = slot->startAddr;
-				FreeMemArr[FreeMemArrCnt].len = slot->len;
+				FreeMemArr[FreeMemArrCnt].len = slot->len;				
 				FreeMemArrCnt++;
+				totalLen += slot->len;
 			}
 		}
 		int size = sizeof(struct e820slot);
 		if (size!=32) {//assert
-			char buf[100];
 			b_output("assert fail, size=");
 			str_long2hex(size, buf);
 			b_output(buf);
@@ -141,6 +140,12 @@ void printe820(){
 		mp += size;
 		slot = (struct e820slot*) mp;// or slot++
 	}
+	
+	b_output("Total size:");
+	str_long2dec(totalLen, buf);
+	b_output(buf);
+	b_output("\n");
+			
 }
 void mempart_cutoff(struct mempart *target, struct mempart *mp) {
 	U64 start = mp->startAddr;
@@ -169,8 +174,29 @@ void mempart_cutoff(struct mempart *target, struct mempart *mp) {
 	}
 	// case 4/4
 	if (start>t0 && stop<t1) {
+		b_output("[");
+		str_long2dec(start, buf);
+		b_output(buf);
+		b_output(" ");
+		str_long2dec(stop, buf);
+		b_output(buf);
+		b_output(" ");
+		str_long2dec(t0, buf);
+		b_output(buf);
+		b_output(" ");
+		str_long2dec(t1, buf);
+		b_output(buf);
+		b_output("]\n");
+	
 		target->len = start-t0;
 		// add one record
+		if (FreeMemArrCnt >= MAX_MEM_ARR) {
+			str_long2dec(FreeMemArrCnt, buf);
+			b_output(buf);
+			b_output("  ");	
+			b_output("no more slot 2!\n");
+			while(1){};
+		}
 		FreeMemArr[FreeMemArrCnt].startAddr = stop;
 		FreeMemArr[FreeMemArrCnt].len = t1-stop;
 		FreeMemArrCnt++;
@@ -205,6 +231,16 @@ void printTestingMempart(){
 }
 void writeUnit(U64* unit, U64 total, U64 v) {
 	U64 percent = total /100;
+//	if (percent%8!=0) {
+//		b_output("adjust unit ");
+//		str_long2dec(percent, buf);
+//		b_output(buf);
+//		b_output(" to ");
+//		percent = percent/8*8;
+//		str_long2dec(percent, buf);
+//		b_output(buf);
+//		b_output("\n");
+//	}
 	U64 cnt =0 ;
 	int j=0;
 #ifdef fastmem
@@ -216,8 +252,8 @@ void writeUnit(U64* unit, U64 total, U64 v) {
 		unit += percent;
 		cnt += percent;
 		if (cnt>=total) break;
-		j++;
-		if (j==100) j=99;
+		j= 100*cnt/total;
+		if (j>=100) j=99;
 		str_long2dec(j, buf);
 		b_output(buf);
 		if(j<10) b_output(" %");
@@ -243,13 +279,23 @@ void writeUnit(U64* unit, U64 total, U64 v) {
 		}
 	}
 #endif
-	b_output("OK \n");
+	b_output("OK ");
 }
 
 
 
 void verifyUnit(U64* unit, U64 total, U64 v) {
 	U64 percent = total /100;
+//	if (percent%8!=0) {
+//		b_output("adjust unit ");
+//		str_long2dec(percent, buf);
+//		b_output(buf);
+//		b_output(" to ");
+//		percent = percent/8*8;
+//		str_long2dec(percent, buf);
+//		b_output(buf);
+//		b_output("\n");
+//	}
 	U64 cnt =0 ;
 	int j=0;
 #ifdef fastmem
@@ -269,8 +315,8 @@ void verifyUnit(U64* unit, U64 total, U64 v) {
 		unit += percent;
 		cnt += percent;
 		if (cnt>=total) break;
-		j++;
-		if (j==100) j=99;
+		j= 100*cnt/total;
+		if (j>=100) j=99;
 		str_long2dec(j, buf);
 		b_output(buf);
 		if(j<10) b_output(" %");
@@ -302,7 +348,7 @@ void verifyUnit(U64* unit, U64 total, U64 v) {
 		}
 	}
 #endif	
-	b_output("OK \n");
+	b_output("OK ");
 }
 void doTestMem(struct mempart *mp){
 
@@ -319,22 +365,22 @@ void doTestMem(struct mempart *mp){
 	b_output("Step 2/4 verify FF ");
 	verifyUnit(unit, total, v);
 
-	step=3;
-	v=0;
-	unit = (U64*) mp->startAddr;
-	b_output("Step 3/4 write 00 ");
-	writeUnit(unit, total, v);
-
-	step=4;
-	unit = (U64*) mp->startAddr;
-	b_output("Step 4/4 verify 00 ");
-	verifyUnit(unit, total, v);
-
-	b_output("OK \n");
+//if (1==2) {
+//	step=3;
+//	v=0;
+//	unit = (U64*) mp->startAddr;
+//	b_output("Step 3/4 write 00 ");
+//	writeUnit(unit, total, v);
+//
+//	step=4;
+//	unit = (U64*) mp->startAddr;
+//	b_output("Step 4/4 verify 00 ");
+//	verifyUnit(unit, total, v);
+//}
+	b_output(" OK \n");
 }
 void testFreeMem() {
 	//asm_disable_cpu_cache();
-	//TODO
 	printTestingMempart();
 	int i=0;
 	int j=0;
@@ -357,7 +403,8 @@ void testFreeMem() {
 	//asm_enable_cpu_cache();
 }
 void memtest() {
-	b_output("memtest start...\n");
+	b_output("memtest start.\n");
+	printe820();
 	struct mempart under2M;
 	under2M.startAddr= 0;
 	under2M.len= 0x200000;
