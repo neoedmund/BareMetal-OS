@@ -87,7 +87,7 @@ os_print_newline_done:
 os_output:
 	push rcx
 
-	call os_string_length
+	; call os_string_length
 	call os_output_chars
 
 	pop rcx
@@ -297,9 +297,9 @@ os_output_chars:
 	mov ah, 0x07			; Store the attribute into AH so STOSW can be used later on
 
 os_output_chars_nextchar:
-	jrcxz os_output_chars_done
-	sub rcx, 1
 	lodsb				; Get char from string and store in AL
+	cmp al, 0 
+	je os_output_chars_done	
 	cmp al, 13			; Check if there was a newline character in the string
 	je os_output_chars_newline	; If so then we print a new line
 	cmp al, 10			; Check if there was a newline character in the string

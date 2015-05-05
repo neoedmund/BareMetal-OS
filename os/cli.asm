@@ -185,7 +185,7 @@ exit:
 
 	appextension:		db '.app', 0
 	prompt:			db '> ', 0
-	neos_text: db 'starting neos', 13,  0
+	neos_text: db 'starting memtest64', 13,  0
 
 ; -----------------------------------------------------------------------------
 ; os_string_find_char -- Find first location of character in a string

@@ -1,10 +1,10 @@
 #include "libBareMetal.h"
 
 // tested with testInt.c, enough or not!
-typedef char    U8;
-typedef short   U16;
-typedef int     U32;
-typedef long    U64;
+typedef unsigned char    U8;
+typedef unsigned short   U16;
+typedef unsigned int     U32;
+typedef unsigned long    U64;
 
 // use rep stosq/scasq
 #define fastmem
@@ -16,7 +16,7 @@ U64  asm_verifyU64(U64* loc, U64 cnt, U64 value);
 U64  asm_test(U64 a, U64 b, U64 c);
 //--------------
 void printe820();
-void str_long2dec(U32 v, char* buf);
+void str_long2dec(U64 v, char* buf);
 void memtest();
 static char buf[100];
 static int error =0 ;
@@ -53,12 +53,12 @@ struct e820slot {
 	U32 ext;
 	U64 padding;
 };
-char HEX[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static char HEX[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 void str_itoa(U64 v, char* buf, int len, int radix) {
-	U8 x;
 	int i=0;
 	for (;i<len;i++){
-		x = v % radix;
+		int x = v % radix;
 		v = v / radix;
 		buf[len-1-i]=HEX[x];
 	}
@@ -70,12 +70,11 @@ void str_long2hex(U64 v, char* buf) {
 void str_int2hex(U32 v, char* buf) {
 	str_itoa(v, buf, 8, 16);
 }
-void str_long2dec(U32 v, char* buf) {
-	U8 x;
+void str_long2dec(U64 v, char* buf) {
 	int radix = 10;
 	int i=0;
 	while(1){
-		x = v % radix;
+		int x = v % radix;
 		v = v / radix;
 		buf[i++]=HEX[x];
 		if (v==0) break;
@@ -83,9 +82,8 @@ void str_long2dec(U32 v, char* buf) {
 	buf[i]=0;
 	// reverse
 	int len = i;
-	int t;
 	for (i=0;i<len/2;i++){
-		t = buf[i];
+		int t = buf[i];
 		buf[i]=buf[len-i-1];
 		buf[len-i-1] = t;
 	}
@@ -114,7 +112,7 @@ void printe820(){
 	U64 totalLen = 0;
 	while(1) {
 		printe820slot(slot);
-		
+
 		{ // add to FreeMem
 			if (slot->usable==1){
 				if (FreeMemArrCnt >= MAX_MEM_ARR) {
@@ -122,7 +120,7 @@ void printe820(){
 					while(1){};
 				}
 				FreeMemArr[FreeMemArrCnt].startAddr = slot->startAddr;
-				FreeMemArr[FreeMemArrCnt].len = slot->len;				
+				FreeMemArr[FreeMemArrCnt].len = slot->len;
 				FreeMemArrCnt++;
 				totalLen += slot->len;
 			}
@@ -140,12 +138,12 @@ void printe820(){
 		mp += size;
 		slot = (struct e820slot*) mp;// or slot++
 	}
-	
-	b_output("Total size:");
+
+	b_output("Total size=");
 	str_long2dec(totalLen, buf);
 	b_output(buf);
 	b_output("\n");
-			
+
 }
 void mempart_cutoff(struct mempart *target, struct mempart *mp) {
 	U64 start = mp->startAddr;
@@ -174,26 +172,13 @@ void mempart_cutoff(struct mempart *target, struct mempart *mp) {
 	}
 	// case 4/4
 	if (start>t0 && stop<t1) {
-		b_output("[");
-		str_long2dec(start, buf);
-		b_output(buf);
-		b_output(" ");
-		str_long2dec(stop, buf);
-		b_output(buf);
-		b_output(" ");
-		str_long2dec(t0, buf);
-		b_output(buf);
-		b_output(" ");
-		str_long2dec(t1, buf);
-		b_output(buf);
-		b_output("]\n");
-	
+
 		target->len = start-t0;
 		// add one record
 		if (FreeMemArrCnt >= MAX_MEM_ARR) {
 			str_long2dec(FreeMemArrCnt, buf);
 			b_output(buf);
-			b_output("  ");	
+			b_output("  ");
 			b_output("no more slot 2!\n");
 			while(1){};
 		}
@@ -325,7 +310,7 @@ void verifyUnit(U64* unit, U64 total, U64 v) {
 		os_dec_cursor();
 		os_dec_cursor();
 	}
-#else	
+#else
 	for (U64 i=0;i<total;i++) {
 		if ( *unit != v ){
 			error++;
@@ -347,7 +332,7 @@ void verifyUnit(U64* unit, U64 total, U64 v) {
 			os_dec_cursor();
 		}
 	}
-#endif	
+#endif
 	b_output("OK ");
 }
 void doTestMem(struct mempart *mp){
@@ -357,26 +342,24 @@ void doTestMem(struct mempart *mp){
 
 	U64  v = -1;
 	U64* unit = (U64*) mp->startAddr;
-	b_output("Step 1/4 write FF ");
+	b_output("1/4 write FF ");
 	writeUnit(unit, total, v);
 
 	step = 2;
 	unit = (U64*) mp->startAddr;
-	b_output("Step 2/4 verify FF ");
+	b_output(" 2/4 verify FF ");
 	verifyUnit(unit, total, v);
 
-//if (1==2) {
-//	step=3;
-//	v=0;
-//	unit = (U64*) mp->startAddr;
-//	b_output("Step 3/4 write 00 ");
-//	writeUnit(unit, total, v);
-//
-//	step=4;
-//	unit = (U64*) mp->startAddr;
-//	b_output("Step 4/4 verify 00 ");
-//	verifyUnit(unit, total, v);
-//}
+	step=3;
+	v=0;
+	unit = (U64*) mp->startAddr;
+	b_output(" 3/4 write 00 ");
+	writeUnit(unit, total, v);
+
+	step=4;
+	unit = (U64*) mp->startAddr;
+	b_output(" 4/4 verify 00 ");
+	verifyUnit(unit, total, v);
 	b_output(" OK \n");
 }
 void testFreeMem() {
@@ -384,11 +367,11 @@ void testFreeMem() {
 	printTestingMempart();
 	int i=0;
 	int j=0;
-	for (i=0;i<FreeMemArrCnt;i++) { 
+	for (i=0;i<FreeMemArrCnt;i++) {
 		struct mempart *mp = & FreeMemArr[i];
 		if (mp->len==0) continue;
 		j++;
-		b_output("Testing No.");
+		b_output("Test No.");
 		str_long2dec(j, buf);
 		b_output(buf);
 		b_output("    ");
@@ -397,13 +380,17 @@ void testFreeMem() {
 		b_output("    ");
 		str_long2hex(mp->len, buf);
 		b_output(buf);
-		b_output("\n");
+		b_output(" (");
+		str_long2dec(mp->len, buf);
+		b_output(buf);
+		b_output(")\n");
 		doTestMem(mp);
 	}
 	//asm_enable_cpu_cache();
 }
 void memtest() {
-	b_output("memtest start.\n");
+	b_output("memtest start\n");
+	error = 0;
 	printe820();
 	struct mempart under2M;
 	under2M.startAddr= 0;
@@ -411,6 +398,12 @@ void memtest() {
 	mempart_sub(&under2M);
 	testFreeMem();
 	b_output("memtest finish.\n");
+	if (error>0) {
+		b_output("Error count=");
+		str_long2dec(error, buf);
+		b_output(buf);
+		b_output("\n");
+	}
 }
 
 
