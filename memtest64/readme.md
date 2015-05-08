@@ -12,17 +12,17 @@ run build.sh
 
 Install
 ---------------------
-'''
-sudo cp bin/neos.bin /boot/
-'''
+
+    sudo cp bin/neos.bin /boot/
+
 
 add an entry to grub.cfg:
 
-'''
-menuentry "memtest64 load by linux16" {
-    linux16 /boot/neos.bin
-}
-'''
+
+    menuentry "memtest64 load by linux16" {
+        linux16 /boot/neos.bin
+    }
+
 
 Use
 --------------------------
