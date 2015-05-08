@@ -46,7 +46,7 @@ It use linux "old" boot protocol ver 2.03. Bootloader like grub, will load start
 with max to 512*16 bytes setup code to 0x90000, and a "flat big kernel" payload start from
 0x100000(1MB), which can be really big like bzImage of linux.
 
-Hobby OS develops can stop from this enviroment for thier X86_64 OS dev, load by grub and test
+Hobby OS develops can start from this enviroment for thier X86_64 OS dev, load by grub and test
 on real machine easily. No need to make new filesystem or disk partions.
 
 
