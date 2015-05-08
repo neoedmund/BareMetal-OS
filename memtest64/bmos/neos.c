@@ -41,7 +41,7 @@ struct mempart {
 
 // 50  is enough?
 
-#define MAX_MEM_ARR 40
+#define MAX_MEM_ARR 100
 
 static struct mempart FreeMemArr[MAX_MEM_ARR];
 static int FreeMemArrCnt=0;
@@ -69,6 +69,12 @@ void str_long2hex(U64 v, char* buf) {
 }
 void str_int2hex(U32 v, char* buf) {
 	str_itoa(v, buf, 8, 16);
+}
+char waitkey() {
+	while(1){
+		char c = b_input_key();
+		if (c!=0) return c;
+	}	
 }
 void str_long2dec(U64 v, char* buf) {
 	int radix = 10;
@@ -104,14 +110,7 @@ void printe820slot(struct e820slot* slot) {
 	}
 	b_output("\n");
 }
-char waitKey() {
-	char c;
-	while(1) {
-		c= b_input_key();
-		if (c!=0) break;
-	}
-	return c;
-}
+
 void printe820(){
 	FreeMemArrCnt=0;
 	U64 mp = 0x0000000000004000L;
@@ -122,15 +121,16 @@ void printe820(){
 		printe820slot(slot);
 		i++;
 		if (i>20) {
-			waitKey();
+			b_output("press a key for more...");
+			waitkey();
 			i=0;
 		}
 		{ // add to FreeMem
 			if (slot->usable==1){
-				//if (FreeMemArrCnt >= MAX_MEM_ARR) {
-				//	b_output("no more slot 1!\n");
-				//	while(1){};
-				//}
+				if (FreeMemArrCnt >= MAX_MEM_ARR) {
+					b_output("no more slot 1!\n");
+					while(1){};
+				}
 				FreeMemArr[FreeMemArrCnt].startAddr = slot->startAddr;
 				FreeMemArr[FreeMemArrCnt].len = slot->len;
 				FreeMemArrCnt++;
@@ -155,7 +155,10 @@ void printe820(){
 	str_long2dec(totalLen, buf);
 	b_output(buf);
 	b_output("\n");
-
+	if (i>0) {
+		b_output("press a key to continue...");
+		waitkey();
+	}
 }
 void mempart_cutoff(struct mempart *target, struct mempart *mp) {
 	U64 start = mp->startAddr;
@@ -187,13 +190,13 @@ void mempart_cutoff(struct mempart *target, struct mempart *mp) {
 
 		target->len = start-t0;
 		// add one record
-		//if (FreeMemArrCnt >= MAX_MEM_ARR) {
-		//	str_long2dec(FreeMemArrCnt, buf);
-		//	b_output(buf);
-		//	b_output("  ");
-		//	b_output("no more slot 2!\n");
-		//	while(1){};
-		//}
+		if (FreeMemArrCnt >= MAX_MEM_ARR) {
+			str_long2dec(FreeMemArrCnt, buf);
+			b_output(buf);
+			b_output("  ");
+			b_output("no more slot 2!\n");
+			while(1){};
+		}
 		FreeMemArr[FreeMemArrCnt].startAddr = stop;
 		FreeMemArr[FreeMemArrCnt].len = t1-stop;
 		FreeMemArrCnt++;
@@ -417,6 +420,4 @@ void memtest() {
 		b_output("\n");
 	}
 }
-
-
 

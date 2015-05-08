@@ -1,0 +1,16 @@
+On branch master
+Your branch is ahead of 'origin/master' by 3 commits.
+  (use "git push" to publish your local commits)
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	os/neos.S
+	os/t1
+	programs/printe820.c
+	programs/stdint.h
+	programs/testInt
+	programs/testInt.c
+	programs/testInt.o
+	t1
+
+nothing added to commit but untracked files present (use "git add" to track)
