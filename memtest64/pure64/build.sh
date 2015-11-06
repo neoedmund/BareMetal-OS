@@ -1,11 +1,10 @@
 #!/bin/bash
 set -e 
 
-cd pure64
-nasm linuxBoot.s -o ../bin/linuxBoot.bin
+cd /home/neoe/localsvn/lab/neos/pure64/
+nasm linuxBoot.s -o bin/linuxBoot.bin
 
-
-cd ../bmos
+cd bmos
 nasm -f elf64 kernel64.asm -o ../bin/kernel64.elf64
 gcc  -c -m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone -o ../bin/libBareMetal.o libBareMetal.c
 gcc  -std=c99 -c -m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone -o ../bin/neos.o neos.c 
