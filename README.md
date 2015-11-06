@@ -4,11 +4,15 @@ This project contains neoe's adventures in OS-develop.
 
 It uses  [Pure64 and BareMetal](https://github.com/ReturnInfinity/BareMetal)
 
+Added some other stuff,
+like `memtest` , `Play With the Memory`.
+
 
 # some other stories
 
 Why another OS?
 
+Well,
 
 ## source mature level (by neoe)
 1. runnable, functional.(works)
