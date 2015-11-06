@@ -19,8 +19,11 @@ Why another OS?
 
 for the reusable, let's compare Linux-like and BareMetal-like:
 
-![mass](https://github.com/neoedmund/BareMetal-OS/raw/master/www/mass.jpg "Linux")
+* Linux *
 You cannot just pull a module from Linux into your OS.
+![mass](https://github.com/neoedmund/BareMetal-OS/raw/master/www/mass.jpg "Linux")
 
+* What I expected *
+People can make many linux clones instead of just many linux-distro!
 ![module](https://github.com/neoedmund/BareMetal-OS/raw/master/www/modules.jpg "My dream")
 
