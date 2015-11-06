@@ -13,7 +13,7 @@ cd ../pw_mem
 make
 
 cd  ../bin/
-ld -T ../bmos/kernel64.lds kernel64.o neos.o libBareMetal.o -b binary  -o kernel64all.o
+ld -T ../kernel64.lds kernel64.o neos.o libBareMetal.o -b binary  -o kernel64all.o
 
 cat linuxBoot.o kernel64all.o > neos.img
 sudo cp -v neos.img /boot
