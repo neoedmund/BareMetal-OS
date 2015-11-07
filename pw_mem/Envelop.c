@@ -1,8 +1,7 @@
 // package neoe.mem;
 
 // public class Envelop {
-#include <stdio.h>
-#include <stdlib.h> //exit()
+#include "std.h"
 #include <inttypes.h>
 #include "Envelop.h"
 #include "DummyLv0.h"
@@ -34,9 +33,9 @@
 static neoe_mem_Lv0 dummyLv0;
 	/*private*/
 void neoe_mem_Envelop_checkSignature(neoe_mem_Envelop* self) {
-//	printf("Env start=%" PRIx64 "\n", self->start);
+//	printf("Env start=%lx\n", self->start);
 	if (self->start == 0 || neoe_mem_Envelop_getSignature(self) != neoe_mem_Envelop_Signature) {
-		/*klog*/printf("[E]bad sig!\n"); exit(1);
+		/*klog*/printf("[E]bad sig!\n");
 		DummyLv0_Init(&dummyLv0);
 		self->lv0 =  &dummyLv0;
 	}

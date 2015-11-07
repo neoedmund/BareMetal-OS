@@ -6,7 +6,7 @@
 // public class DummyLv0 extends Lv0* {
 
 #include <stdint.h>
-#include <stdio.h>
+#include "std.h"
 #include "Lv0.h"
 #include "DummyLv0.h"
 

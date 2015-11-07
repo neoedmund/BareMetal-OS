@@ -1,6 +1,11 @@
 TARGET = mm.o
-#CC = gcc
-CFLAGS = -std=c1x -Wall -m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone
+
+ifndef CC1
+	CC1=clang
+endif
+
+# -nostartfiles -nodefaultlibs 
+CFLAGS = -I../std/ -std=c1x -Wall -m64 -nostdlib -fomit-frame-pointer -mno-red-zone -fno-builtin
 
 .PHONY: default all clean
 
@@ -11,7 +16,7 @@ OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))
 HEADERS = $(wildcard *.h)
 
 %.o: %.c $(HEADERS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+	$(CC1) -c -o $@ $< $(CFLAGS)
 
 .PRECIOUS: $(TARGET) $(OBJECTS)
 

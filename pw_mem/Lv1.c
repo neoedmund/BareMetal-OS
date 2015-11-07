@@ -1,29 +1,30 @@
 // package neoe.mem;
 #include <stdbool.h>
-#include <stdio.h>
 #include <inttypes.h>
 #include "Lv0.h"
 #include "Lv1.h"
 #include "U.h"
 #include "Envelop.h"
 
+#include "std.h"
+
 #define Envelop neoe_mem_Envelop
 
 	/*public*/
  void neoe_mem_Lv1_Init(neoe_mem_Lv1* self, neoe_mem_Lv0* lv0) {
 		self->lv0 = lv0;
-		//printf("firstStart1=%" PRIx64 ", addr=%" PRIx64 "\n", self->lv0->firstStart, & self->lv0->firstStart);
-		//printf("firstStart2=%" PRIx64 ", addr=%" PRIx64 "\n", lv0->firstStart, & lv0->firstStart);
+		//printf("firstStart1=%lx, addr=%lx\n", self->lv0->firstStart, & self->lv0->firstStart);
+		//printf("firstStart2=%lx, addr=%lx\n", lv0->firstStart, & lv0->firstStart);
 	}
 
 	/*public*/
  uint64_t neoe_mem_Lv1_alloc(neoe_mem_Lv1* self, uint64_t size) {
 		size = neoe_mem_U_alignSize(size);
 		uint64_t p1 = self->lv0->firstStart;
-		//printf("firstStart=%" PRIx64 ", addr=%" PRIx64 "\n", p1, & self->lv0->firstStart);
+		printf("firstStart=%lx, addr=%lx\n", p1, & self->lv0->firstStart);
 		Envelop _b; Envelop* b =  &_b;  neoe_mem_Envelop_Init(&_b, self->lv0, p1);
 		while (true) {
-			printf("reload %" PRIx64 "\n", p1);
+			printf("reload %lx\n", p1);
 			neoe_mem_Envelop_reload(b, p1);
 			if (neoe_mem_Envelop_getType(b) != neoe_mem_Envelop_TYPE_FREE || neoe_mem_Envelop_getMaxDataLen(b) < size) {
 				// try next
@@ -201,7 +202,7 @@
 		neoe_mem_Envelop_reload(b, p2);
 		if (neoe_mem_Envelop_getType(b) != neoe_mem_Envelop_TYPE_FREE)
 			return false;
-		// printf("%" PRIx64 "+%" PRIx64 "=%" PRIx64 "!=%" PRIx64 "\n", p2, b.getTotalSize1(), p2 +
+		// printf("%lx+%lx=%lx!=%lx\n", p2, b.getTotalSize1(), p2 +
 		// b.getTotalSize1(), p1);
 		return p2 + neoe_mem_Envelop_getTotalSize1(b) == p1;
 	}

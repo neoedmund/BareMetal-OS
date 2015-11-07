@@ -1,6 +1,6 @@
 // package neoe.mem;
 
-#include <stdio.h>
+#include "std.h"
 #include <stdint.h>
 #include "Lv0.h"
 

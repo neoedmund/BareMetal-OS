@@ -16,6 +16,7 @@ global kernel_start
 global asm_writeU64
 global asm_verifyU64
 global asm_test
+global asm_copyrange
 
 kernel_start:
 	jmp start			; Skip over the function call index
@@ -48,7 +49,7 @@ kernel_start:
 	align 16
 
 start:
-	
+
 	call init_64			; After this point we are in a working 64-bit environment
 	call init_pci			; Initialize the PCI bus
 	call init_hdd			; Initialize the disk
@@ -69,7 +70,7 @@ start:
 	;;mov rax, os_command_line	; Start the CLI
 	;;call os_smp_enqueue
 	jmp os_command_line
-	
+
 
 	; Fall through to ap_clear as align fills the space with No-Ops
 	; At this point the BSP is just like one of the AP's
@@ -78,7 +79,7 @@ start:
 align 16
 
 ap_clear:				; All cores start here on first start-up and after an exception
-	
+
 	cli				; Disable interrupts on this core
 
 	; Get local ID of the core
@@ -122,7 +123,7 @@ ap_clear:				; All cores start here on first start-up and after an exception
 	xor r13, r13
 	xor r14, r14
 	xor r15, r15
-	
+
 
 ap_spin:				; Spin until there is a workload in the queue
 	cmp word [os_QueueLen], 0	; Check the length of the queue
@@ -171,6 +172,20 @@ asm_verifyU64:
 	;call os_debug_dump_reg
 	rep scasq
 	mov rax, rcx
+	pop rdi
+	pop rcx
+	ret
+asm_copyrange: ;; memcpy , no-overlapping according to current Lv1 implementation
+	push rcx
+	push rdi
+	push rsi
+	;mov rdi, rdi ; param 1:to
+	;mov rsi, rsi ; param 2:from
+	mov rcx, rdx ; param 3:size
+	shr rcx, 3 ; 8 bytes per time
+	cld
+	rep movsq
+	pop rsi
 	pop rdi
 	pop rcx
 	ret

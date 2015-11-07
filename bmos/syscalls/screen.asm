@@ -310,9 +310,6 @@ os_output_chars_nextchar:
 	jmp os_output_chars_nextchar
 
 os_output_chars_newline:
-	;mov al, [rsi]
-	;cmp al, 10
-	;je os_output_chars_newline_skip_LF
 	call os_print_newline
 	jmp os_output_chars_nextchar
 

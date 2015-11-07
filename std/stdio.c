@@ -2,24 +2,19 @@
 #define MY_STDID_H
 
 #include <stdint.h>
-//#include <stdarg.h>
-// whatever it means...
-typedef char* va_list;
-#define So64  sizeof(int)
-// + So64 - 1) & ~(So64 - 1)
-#define _INTSIZEOF(n)    8
-//sizeof(n)
-//((sizeof(n)+ So64 - 1) & ~(So64 - 1))
-#define va_start(ap, v)  (ap = (va_list) (&v + _INTSIZEOF(v)))
-#define va_arg(ap, t)    (* (t *) ((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)) )
-#define va_end(ap)       (ap = (va_list) 0)
+
+// DO NOT MESS WITH AMD64, see ABI page 50, "3.5.7 Variable Argument List" for details
+#include <stdarg.h>
+
 
 // --------------------------------
 extern void b_output(const char *str);
 extern unsigned char b_input_key(void);
 extern void reboot();
 
-
+char getchar() {
+	return b_input_key();
+}
 
 static void putchar(char c) {
 	char scr[2];
@@ -152,35 +147,35 @@ static int print(char **out, const char *format, va_list args )
 			}
 			if( *format == 'd' ) {
 				if (size==1)
-					pc += printi (out, va_arg( args, uint64_t ), 10, 1, width, pad, 'a');
+					pc += printi (out, va_arg( args, uint32_t ), 10, 1, width, pad, 'a');
 				else
 					pc += printi (out, va_arg( args, uint64_t ), 10, 1, width, pad, 'a');
 				continue;
 			}
 			if( *format == 'x' ) {
 				if (size==1)
-					pc += printi (out, va_arg( args, uint64_t ), 16, 0, width, pad, 'a');
+					pc += printi (out, va_arg( args, uint32_t ), 16, 0, width, pad, 'a');
 				else
 					pc += printi (out, va_arg( args, uint64_t ), 16, 0, width, pad, 'a');
 				continue;
 			}
 			if( *format == 'X' ) {
 				if (size==1)
-					pc += printi (out, va_arg( args, uint64_t ), 16, 0, width, pad, 'A');
+					pc += printi (out, va_arg( args, uint32_t ), 16, 0, width, pad, 'A');
 				else
 					pc += printi (out, va_arg( args, uint64_t ), 16, 0, width, pad, 'A');
 				continue;
 			}
 			if( *format == 'u' ) {
 				if (size==1)
-					pc += printi (out, va_arg( args, uint64_t ), 10, 0, width, pad, 'a');
+					pc += printi (out, va_arg( args, uint32_t ), 10, 0, width, pad, 'a');
 				else
 					pc += printi (out, va_arg( args, uint64_t ), 10, 0, width, pad, 'a');
 				continue;
 			}
 			if( *format == 'c' ) {
 				/* char are converted to int then pushed on the stack */
-				scr[0] = va_arg( args, char );
+				scr[0] = va_arg( args, int );
 				scr[1] = '\0';
 				pc += prints (out, scr, width, pad);
 				continue;
@@ -217,8 +212,9 @@ void puts(char* msg) {
 }
 
 int exit(int code) {
-	puts("Panic! Kernel no-where to exit! press a key to reboot.");
+	printf("Exit with code=%d! Kernel no-where to exit!\n press ESC to reboot.\n", code);
 	b_input_key();
+	while(1) {};
 	reboot();
 	return code;
 }

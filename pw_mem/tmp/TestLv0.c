@@ -52,11 +52,11 @@
 			entry->buf = buf;
 			HASH_ADD( hh, self->emuData, id, So64, entry );
 			//neoe_mem_TestLv0_debug(self, String.format("+%x", addr0));
-			printf("[d]+%" PRIx64 "\n", addr0);
+			printf("[d]+%lx\n", addr0);
 		}
 		uint64_t loc =   (addr % neoe_mem_TestLv0_EmuBlockSizeInUnit);
 		entry->buf[loc] = v;
-		//printf("[d]write %" PRIx64 "|%" PRIx64 "[%" PRIx64 "]=%" PRIx64 "\n", blockId, addr << neoe_mem_Lv0_alignInByteShift,  loc, v );
+		//printf("[d]write %lx|%lx[%lx]=%lx\n", blockId, addr << neoe_mem_Lv0_alignInByteShift,  loc, v );
 	}
 
 	/*private*/
@@ -84,12 +84,12 @@
 			entry->buf = buf;
 			HASH_ADD( hh, self->emuData, id, So64, entry );
 			//neoe_mem_TestLv0_debug(self, String.format("!+%x", addr));
-			printf("[d]!+%" PRIx64 "\n", addr);
+			printf("[d]!+%lx\n", addr);
 			return 0;
 		}
 		uint64_t loc =   (addr % neoe_mem_TestLv0_EmuBlockSizeInUnit);
 		uint64_t v = entry->buf[loc];
-		//printf("[d]read buf[%" PRIx64 "]=%" PRIx64 "\n", loc, v );
+		//printf("[d]read buf[%lx]=%lx\n", loc, v );
 		return v;
 	}
 
@@ -100,7 +100,7 @@
 		//neoe_mem_TestLv0* self =  (neoe_mem_TestLv0*) _self->realObj;
 		size = neoe_mem_U_alignSize(size);
 		//neoe_mem_TestLv0_debug(self, String.format("copyrange[%x→%x=%x]", from, to, size));
-		printf("copyrange[%" PRIx64 "→%" PRIx64 "=%" PRIx64 "]\n", from, to, size);
+		printf("copyrange[%lx→%lx=%lx]\n", from, to, size);
 		for (uint64_t i = 0; i < size; i++) {
 			uint64_t v = neoe_mem_TestLv0_read4(_self, from + i);
 			neoe_mem_TestLv0_write4(_self, to + i, v);
