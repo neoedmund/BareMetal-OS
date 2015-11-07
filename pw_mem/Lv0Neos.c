@@ -122,6 +122,17 @@ static void initE820Arr () {
 static neoe_mem_Lv0Neos lv0os;
 static neoe_mem_Lv0 lv0;
 static neoe_mem_Lv1 lv1;
+
+
+
+static char waitkey() {
+	while(1){
+		char c = getchar();
+		if (c!=0) return c;
+	}	
+}
+
+
 static  void neoe_mem_Test1_testAllocFrees(neoe_mem_Lv1* lv1) {
 		printf("neoe_mem_Test1_testAllocFrees\n");
 		uint64_t p1, p2, p3, p4;
@@ -129,30 +140,30 @@ static  void neoe_mem_Test1_testAllocFrees(neoe_mem_Lv1* lv1) {
 		printf("a2=%lx\n", p2 = neoe_mem_Lv1_alloc(lv1, 0x1000000L));
 		printf("a3=%lx\n", p3 = neoe_mem_Lv1_alloc(lv1, 0x1000000L));
 		printf("a4=%lx\n", p4 = neoe_mem_Lv1_alloc(lv1, 0x1000000L));
-		printf("-----\n");getchar();
+		printf("-----\n");waitkey();
 		printf("free a4=%lx\n" , neoe_mem_Lv1_free(lv1, p4));
 		printf("a4=%lx\n", p4 = neoe_mem_Lv1_alloc(lv1, 0x1000000L + 1));
-		printf("-----\n");getchar();
+		printf("-----\n");waitkey();
 		printf("free a4=%lx\n" , neoe_mem_Lv1_free(lv1, p4));
 		printf("a4=%lx\n", p4 = neoe_mem_Lv1_alloc(lv1, 0x1000000L));
-		printf("-----\n");getchar();
+		printf("-----\n");waitkey();
 		printf("free a3=%lx\n" , neoe_mem_Lv1_free(lv1, p3));
-		printf("-----\n");getchar();
+		printf("-----\n");waitkey();
 		printf("a3=%lx\n", p3 = neoe_mem_Lv1_alloc(lv1, 0x1000000L));
 		printf("free a3=%lx\n" , neoe_mem_Lv1_free(lv1, p3));
 		printf("free a2=%lx\n" , neoe_mem_Lv1_free(lv1, p2));
-		printf("-----\n");getchar();
+		printf("-----\n");waitkey();
 		printf("a2=%lx\n", p2 = neoe_mem_Lv1_alloc(lv1, 0x1000000L));
 		printf("a3=%lx\n", p3 = neoe_mem_Lv1_alloc(lv1, 0x1000000L));
 		printf("free a2=%lx\n" , neoe_mem_Lv1_free(lv1, p2));
 		printf("free a3=%lx\n" , neoe_mem_Lv1_free(lv1, p3));
-		printf("-----\n");getchar();
+		printf("-----\n");waitkey();
 		printf("a2=%lx\n", p2 = neoe_mem_Lv1_alloc(lv1, 0x1000000L));
 		printf("a3=%lx\n", p3 = neoe_mem_Lv1_alloc(lv1, 0x1000000L));
 		printf("free a1=%lx\n" , neoe_mem_Lv1_free(lv1, p1));
 		printf("free a3=%lx\n" , neoe_mem_Lv1_free(lv1, p3));
 		printf("free a2=%lx\n" , neoe_mem_Lv1_free(lv1, p2));
-		printf("-----\n");getchar();
+		printf("-----\n");waitkey();
 		printf("free a4=%lx\n" , neoe_mem_Lv1_free(lv1, p4));
 }
 
@@ -163,7 +174,7 @@ static  void neoe_mem_Test1_testAllocFrees(neoe_mem_Lv1* lv1) {
 		printf("a2=%lx\n", p2 = neoe_mem_Lv1_alloc(lv1, 0x1000000L));
 		printf("a3=%lx\n", p3 = neoe_mem_Lv1_alloc(lv1, 0x1000000L));
 		printf("a4=%lx\n", p4 = neoe_mem_Lv1_alloc(lv1, 0x1000000L));
-		printf("-----\n");getchar();
+		printf("-----\n");waitkey();
 		printf("free a4=%lx\n" , neoe_mem_Lv1_free(lv1, p4));
 		printf("a4=%lx\n", p4 = neoe_mem_Lv1_alloc(lv1, 0x1000000L + 1));
 		printf("a4=%lx\n", p4 = neoe_mem_Lv1_enlarge(lv1, p4, (0x1000000L + 5)));
