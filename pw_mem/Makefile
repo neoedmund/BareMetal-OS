@@ -1,6 +1,6 @@
 TARGET = mm.o
-CC = clang
-CFLAGS = -std=c1x -g -Wall -m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone
+#CC = gcc
+CFLAGS = -std=c1x -Wall -m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone
 
 .PHONY: default all clean
 

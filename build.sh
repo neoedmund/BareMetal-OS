@@ -1,9 +1,10 @@
 #!/bin/bash
 set -e 
 
-rm -f bin/*
+rm -f bin/*.o
+rm -f pw_mem/*.o
 
-CC=clang
+#CC = gcc
 FLG64OS="-m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone -ffreestanding -fno-builtin" 
 
 echo "=== build pure64"

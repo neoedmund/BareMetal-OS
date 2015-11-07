@@ -7,7 +7,7 @@
 	/*public*/
  /*static*/
  void neoe_mem_U_klog( char* s) {
-		printf(s);
+		printf("%s\n", s);
 	}
 
 	/*public*/

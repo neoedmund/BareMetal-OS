@@ -5,11 +5,13 @@
 //#include <stdarg.h>
 // whatever it means...
 typedef char* va_list;
-//#define So64  sizeof(va_list)
+#define So64  sizeof(int)
 // + So64 - 1) & ~(So64 - 1)
-#define _INTSIZEOF(n)    (sizeof(n))
-#define va_start(ap, v)  (ap = (va_list) &v + _INTSIZEOF(v))
-#define va_arg(ap, t)    (* ((t *)((ap += _INTSIZEOF(t)) - _INTSIZEOF(t))))
+#define _INTSIZEOF(n)    8
+//sizeof(n)
+//((sizeof(n)+ So64 - 1) & ~(So64 - 1))
+#define va_start(ap, v)  (ap = (va_list) (&v + _INTSIZEOF(v)))
+#define va_arg(ap, t)    (* (t *) ((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)) )
 #define va_end(ap)       (ap = (va_list) 0)
 
 // --------------------------------
@@ -150,28 +152,28 @@ static int print(char **out, const char *format, va_list args )
 			}
 			if( *format == 'd' ) {
 				if (size==1)
-					pc += printi (out, va_arg( args, uint32_t ), 10, 1, width, pad, 'a');
+					pc += printi (out, va_arg( args, uint64_t ), 10, 1, width, pad, 'a');
 				else
 					pc += printi (out, va_arg( args, uint64_t ), 10, 1, width, pad, 'a');
 				continue;
 			}
 			if( *format == 'x' ) {
 				if (size==1)
-					pc += printi (out, va_arg( args, uint32_t ), 16, 0, width, pad, 'a');
+					pc += printi (out, va_arg( args, uint64_t ), 16, 0, width, pad, 'a');
 				else
 					pc += printi (out, va_arg( args, uint64_t ), 16, 0, width, pad, 'a');
 				continue;
 			}
 			if( *format == 'X' ) {
 				if (size==1)
-					pc += printi (out, va_arg( args, uint32_t ), 16, 0, width, pad, 'A');
+					pc += printi (out, va_arg( args, uint64_t ), 16, 0, width, pad, 'A');
 				else
 					pc += printi (out, va_arg( args, uint64_t ), 16, 0, width, pad, 'A');
 				continue;
 			}
 			if( *format == 'u' ) {
 				if (size==1)
-					pc += printi (out, va_arg( args, uint32_t ), 10, 0, width, pad, 'a');
+					pc += printi (out, va_arg( args, uint64_t ), 10, 0, width, pad, 'a');
 				else
 					pc += printi (out, va_arg( args, uint64_t ), 10, 0, width, pad, 'a');
 				continue;

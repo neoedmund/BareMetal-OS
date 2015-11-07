@@ -61,13 +61,14 @@
 void testPrintf() {
 	printf("Hello, this is test-printf.\n");
 	uint64_t v = 123;
-	printf("just test for printf  s1-%s ,x1=%lx, d1=%ld  \n", "a-string", 1L, v );
+	printf("just test for printf  s1=%s ,x1=%lx, d1=%ld  \n", "a-string", 1L, v );
 }
+
+
 int mm_main() {
-	//int whaterver[100];
-	static int mm_inited = 0;
-	if (mm_inited == 0) {
-		mm_inited = 1;
+	static int  mm_inited = 1;
+	if (mm_inited == 1) {
+		mm_inited = 2;
 	} else {
 		printf("MM already inited, do not call more.\n");
 		testPrintf();
