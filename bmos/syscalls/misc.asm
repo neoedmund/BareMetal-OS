@@ -227,6 +227,7 @@ os_system_misc_smp_queuelen:
 
 ; -----------------------------------------------------------------------------
 ; reboot -- Reboot the computer
+global reboot
 reboot:
 	in al, 0x64
 	test al, 00000010b		; Wait for an empty Input Buffer

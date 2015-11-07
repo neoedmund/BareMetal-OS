@@ -20,7 +20,7 @@ global asm_test
 kernel_start:
 	jmp start			; Skip over the function call index
 	nop
-	db 'BAREMETAL'
+;	db 'BAREMETAL'
 
 	align 16
 	dq os_output			; 0x0010

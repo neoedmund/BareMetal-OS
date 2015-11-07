@@ -2,7 +2,7 @@
 
 This project contains neoe's adventures in OS-develop.
 
-It uses  [Pure64 and BareMetal](https://github.com/ReturnInfinity/BareMetal)
+It uses  [Pure64 and BareMetal](https://github.com/ReturnInfinity/BareMetal-OS)
 
 Added some other stuff,
 like `memtest` , `Play With the Memory`.

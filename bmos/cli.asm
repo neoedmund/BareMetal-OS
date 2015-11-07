@@ -6,6 +6,7 @@
 ; =============================================================================
 
 extern memtest_main
+extern mm_main
 
 
 align 16
@@ -40,15 +41,15 @@ os_command_line:
 	mov rdi, cls_string		; 'CLS' entered?
 	call os_string_compare
 	jc near clear_screen
-	
-	mov rdi, memtest_string		;  
+
+	mov rdi, memtest_string		;
 	call os_string_compare
-	jnc .next
-	mov rsi, neos_text
-	call os_output
-	call memtest_main
-	jmp os_command_line
-.next:
+	jc near do_memtest
+
+	mov rdi, mm_string		;
+	call os_string_compare
+	jc near do_mm
+	
 	mov rdi, dir_string		; 'DIR' entered?
 	call os_string_compare
 	jc near dir
@@ -108,6 +109,14 @@ clear_screen:
 ;	call os_move_cursor
 	jmp os_command_line
 
+do_memtest:
+	call memtest_main
+	jmp os_command_line
+
+do_mm:
+	call mm_main
+	jmp os_command_line
+
 print_ver:
 	mov rsi, version_msg
 	call os_output
@@ -140,7 +149,7 @@ debug:
 	call os_system_config
 	cmp al, 1
 	je debug_dump_reg		; If it is only one then do a register dump
-	mov rcx, 16	
+	mov rcx, 16
 	cmp al, 3			; Did we get at least 3?
 	jl noamount			; If not no amount was specified
 	mov al, 2
@@ -169,7 +178,7 @@ exit:
 	ret
 
 ; Strings
-	help_text		db 'Built-in commands: CLS, DEBUG, DIR, HELP, REBOOT, VER', 13, 0
+	help_text		db 'Built-in commands: CLS, DEBUG, DIR, HELP, REBOOT, VER, memtest, mm', 13, 0
 	not_found_msg		db 'Command or program not found', 13, 0
 	version_msg		db 'BareMetal OS ', BAREMETALOS_VER, 13, 0
 
@@ -182,10 +191,9 @@ exit:
 	reboot_string		db 'reboot', 0
 	testzone_string		db 'testzone', 0
 	memtest_string		db 'memtest', 0
-
+	mm_string		db 'mm', 0
 	appextension:		db '.app', 0
 	prompt:			db '> ', 0
-	neos_text: db 'starting memtest64', 13,  0
 
 ; -----------------------------------------------------------------------------
 ; os_string_find_char -- Find first location of character in a string
@@ -329,7 +337,7 @@ os_string_parse:
 	mov rdi, rsi
 
 	call os_string_chomp		; Remove leading and trailing spaces
-	
+
 	cmp byte [rsi], 0x00		; Check the first byte
 	je os_string_parse_done		; If it is a null then bail out
 	inc rcx				; At this point we know we have at least one word
@@ -505,8 +513,8 @@ os_bmfs_list_done:
 	pop rax
 	pop rbx
 	pop rcx
-	pop rsi		
-	pop rdi		
+	pop rsi
+	pop rdi
 
 	ret
 

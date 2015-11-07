@@ -301,7 +301,7 @@ os_output_chars_nextchar:
 	cmp al, 0 
 	je os_output_chars_done	
 	cmp al, 13			; Check if there was a newline character in the string
-	je os_output_chars_newline	; If so then we print a new line
+	je  os_output_chars_nextchar  ; os_output_chars_newline	; If so then we print a new line
 	cmp al, 10			; Check if there was a newline character in the string
 	je os_output_chars_newline	; If so then we print a new line
 	cmp al, 9
@@ -310,9 +310,9 @@ os_output_chars_nextchar:
 	jmp os_output_chars_nextchar
 
 os_output_chars_newline:
-	mov al, [rsi]
-	cmp al, 10
-	je os_output_chars_newline_skip_LF
+	;mov al, [rsi]
+	;cmp al, 10
+	;je os_output_chars_newline_skip_LF
 	call os_print_newline
 	jmp os_output_chars_nextchar
 
