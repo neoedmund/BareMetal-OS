@@ -1,5 +1,5 @@
 TARGET = mm.o
-CC = gcc
+CC = clang
 CFLAGS = -std=c1x -g -Wall -m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone
 
 .PHONY: default all clean

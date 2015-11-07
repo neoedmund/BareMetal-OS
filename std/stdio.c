@@ -4,11 +4,12 @@
 #include <stdint.h>
 //#include <stdarg.h>
 // whatever it means...
-typedef char *va_list;
-#define So64  sizeof(uint64_t)
-#define _INTSIZEOF(n)    ((sizeof(n) + So64 - 1) & ~(So64 - 1))
+typedef char* va_list;
+//#define So64  sizeof(va_list)
+// + So64 - 1) & ~(So64 - 1)
+#define _INTSIZEOF(n)    (sizeof(n))
 #define va_start(ap, v)  (ap = (va_list) &v + _INTSIZEOF(v))
-#define va_arg(ap, t)    (*(t *)((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)))
+#define va_arg(ap, t)    (* ((t *)((ap += _INTSIZEOF(t)) - _INTSIZEOF(t))))
 #define va_end(ap)       (ap = (va_list) 0)
 
 // --------------------------------
@@ -83,10 +84,10 @@ static int printi(char **out, uint64_t i, int b, int sg, int width, int pad, int
 		return prints (out, print_buf, width, pad);
 	}
 
-	if (sg && b == 10 && i < 0) {
-		neg = 1;
-		u = -i;
-	}
+	//if (sg && b == 10 && i < 0) {
+	//	neg = 1;
+	//	u = -i;
+	//}
 
 	s = print_buf + PRINT_BUF_LEN-1;
 	*s = '\0';
@@ -115,12 +116,13 @@ static int printi(char **out, uint64_t i, int b, int sg, int width, int pad, int
 
 static int print(char **out, const char *format, va_list args )
 {
-	int width, pad;
+	int width, pad, size=1;
 	int pc = 0;
 	char scr[2];
 
 	for (; *format != 0; ++format) {
 		if (*format == '%') {
+			size=1;
 			++format;
 			width = pad = 0;
 			if (*format == '\0') break;
@@ -137,30 +139,46 @@ static int print(char **out, const char *format, va_list args )
 				width *= 10;
 				width += *format - '0';
 			}
+			if( *format == 'l' ) {
+				size=2;
+				format++;
+			}
 			if( *format == 's' ) {
-				char *s = (char *)va_arg( args, uint64_t );
+				char *s = va_arg( args, char* );
 				pc += prints (out, s?s:"(null)", width, pad);
 				continue;
 			}
 			if( *format == 'd' ) {
-				pc += printi (out, va_arg( args, uint64_t ), 10, 1, width, pad, 'a');
+				if (size==1)
+					pc += printi (out, va_arg( args, uint32_t ), 10, 1, width, pad, 'a');
+				else
+					pc += printi (out, va_arg( args, uint64_t ), 10, 1, width, pad, 'a');
 				continue;
 			}
 			if( *format == 'x' ) {
-				pc += printi (out, va_arg( args, uint64_t ), 16, 0, width, pad, 'a');
+				if (size==1)
+					pc += printi (out, va_arg( args, uint32_t ), 16, 0, width, pad, 'a');
+				else
+					pc += printi (out, va_arg( args, uint64_t ), 16, 0, width, pad, 'a');
 				continue;
 			}
 			if( *format == 'X' ) {
-				pc += printi (out, va_arg( args, uint64_t ), 16, 0, width, pad, 'A');
+				if (size==1)
+					pc += printi (out, va_arg( args, uint32_t ), 16, 0, width, pad, 'A');
+				else
+					pc += printi (out, va_arg( args, uint64_t ), 16, 0, width, pad, 'A');
 				continue;
 			}
 			if( *format == 'u' ) {
-				pc += printi (out, va_arg( args, uint64_t ), 10, 0, width, pad, 'a');
+				if (size==1)
+					pc += printi (out, va_arg( args, uint32_t ), 10, 0, width, pad, 'a');
+				else
+					pc += printi (out, va_arg( args, uint64_t ), 10, 0, width, pad, 'a');
 				continue;
 			}
 			if( *format == 'c' ) {
 				/* char are converted to int then pushed on the stack */
-				scr[0] = (char)va_arg( args, uint64_t );
+				scr[0] = va_arg( args, char );
 				scr[1] = '\0';
 				pc += prints (out, scr, width, pad);
 				continue;
@@ -179,7 +197,7 @@ static int print(char **out, const char *format, va_list args )
 int printf(const char *format, ...)
 {
         va_list args;
-        
+
         va_start( args, format );
         return print( 0, format, args );
 }
@@ -187,7 +205,7 @@ int printf(const char *format, ...)
 int sprintf(char *out, const char *format, ...)
 {
         va_list args;
-        
+
         va_start( args, format );
         return print( &out, format, args );
 }

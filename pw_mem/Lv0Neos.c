@@ -8,7 +8,6 @@
 
 
 
-#define  PRIx64 "x"
 	/*public*/
  void neoe_mem_Lv0Neos_Init(neoe_mem_Lv0Neos* self, uint64_t* e820) {
 		self->parent->realObj = self;
@@ -16,13 +15,12 @@
 		self->parent->write4   = neoe_mem_Lv0Neos_write4;
 		self->parent->read4   = neoe_mem_Lv0Neos_read4;
 		self->parent->copyRange   = neoe_mem_Lv0Neos_copyRange;
-		
 	}
 
 
 	/*@Override*/
  void neoe_mem_Lv0Neos_write4(neoe_mem_Lv0* _self, uint64_t addr, uint64_t v) {
-		neoe_mem_Lv0Neos* self = _self->realObj;
+//		neoe_mem_Lv0Neos* self = _self->realObj;
 		//TODO
 	}
 
@@ -33,9 +31,10 @@
 
 	/*@Override*/
  uint64_t neoe_mem_Lv0Neos_read4(neoe_mem_Lv0* _self, uint64_t addr) {
-		neoe_mem_Lv0Neos* self =   _self->realObj;
+//		neoe_mem_Lv0Neos* self =   _self->realObj;
 		
 		//TODO
+		return 0;
 	}
 
 	/*@Override*/
@@ -44,8 +43,8 @@
 		
 		//TODO
 		size = neoe_mem_U_alignSize(size);
-		//neoe_mem_Lv0Neos_debug(self, String.format("copyrange[%x→%x=%x]", from, to, size));
-		printf("copyrange[%" PRIx64 "→%" PRIx64 "=%" PRIx64 "]\n", from, to, size);
+		//neoe_mem_Lv0Neos_debug(self, String.format("copyrange[%lx→%lx=%lx]", from, to, size));
+		printf("copyrange[%lx→%lx=%lx]\n", from, to, size);
 		for (uint64_t i = 0; i < size; i++) {
 			uint64_t v = neoe_mem_Lv0Neos_read4(_self, from + i);
 			neoe_mem_Lv0Neos_write4(_self, to + i, v);
@@ -61,11 +60,11 @@
 
 void testPrintf() {
 	printf("Hello, this is test-printf.\n");
-	int v =2;
-	printf("just test for printf x1=%x, d1=%d, s1-%s \n", 1,v, "a-string");
+	uint64_t v = 123;
+	printf("just test for printf  s1-%s ,x1=%lx, d1=%ld  \n", "a-string", 1L, v );
 }
 int mm_main() {
-	int whaterver[100];
+	//int whaterver[100];
 	static int mm_inited = 0;
 	if (mm_inited == 0) {
 		mm_inited = 1;

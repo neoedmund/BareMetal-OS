@@ -3,7 +3,8 @@ set -e
 
 rm -f bin/*
 
-set FLG64OS=-m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone
+CC=clang
+FLG64OS="-m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -mno-red-zone -ffreestanding -fno-builtin" 
 
 echo "=== build pure64"
 cd pure64
@@ -12,16 +13,15 @@ nasm linuxBoot.s -o ../bin/linuxBoot.o
 echo "=== build bmos"
 cd ../bmos
 nasm -f elf64 kernel64.asm -o ../bin/kernel64.o
-gcc  -c $FLG64OS -o ../bin/libBareMetal.o libBareMetal.c
+$CC -c $FLG64OS -o ../bin/libBareMetal.o libBareMetal.c
 
 echo "=== build memtest"
 cd ../memtest64
-gcc  -I../bmos -std=c1x -c $FLG64OS -o ../bin/memtest.o memtest.c 
+$CC  -I../bmos -std=c1x -c $FLG64OS -o ../bin/memtest.o memtest.c 
 
 echo "=== build std lib"
 cd ../std
-gcc -c  -std=c1x -g -Wall $FLG64OS  stdio.c
-cp stdio.o ../bin/
+$CC -c  -std=c1x $FLG64OS  stdio.c -o ../bin/stdio.o
 
 echo "=== build pw_mem"
 cd ../pw_mem

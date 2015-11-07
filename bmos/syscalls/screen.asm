@@ -299,22 +299,22 @@ os_output_chars:
 os_output_chars_nextchar:
 	lodsb				; Get char from string and store in AL
 	cmp al, 0 
-	je os_output_chars_done	
+	je near os_output_chars_done	
 	cmp al, 13			; Check if there was a newline character in the string
-	je  os_output_chars_nextchar  ; os_output_chars_newline	; If so then we print a new line
+	je near os_output_chars_nextchar  ; os_output_chars_newline	; If so then we print a new line
 	cmp al, 10			; Check if there was a newline character in the string
-	je os_output_chars_newline	; If so then we print a new line
+	je near os_output_chars_newline	; If so then we print a new line
 	cmp al, 9
-	je os_output_chars_tab
+	je near os_output_chars_tab
 	call os_output_char
-	jmp os_output_chars_nextchar
+	jmp near os_output_chars_nextchar
 
 os_output_chars_newline:
 	;mov al, [rsi]
 	;cmp al, 10
 	;je os_output_chars_newline_skip_LF
 	call os_print_newline
-	jmp os_output_chars_nextchar
+	jmp near os_output_chars_nextchar
 
 os_output_chars_newline_skip_LF:
 	cmp rcx, 0
