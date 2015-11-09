@@ -1,3 +1,6 @@
+; this is a loader compatible with linux16 protocol, with can be loaded by Grub2 
+
+
 USE16
 
 ORG 0x90000
