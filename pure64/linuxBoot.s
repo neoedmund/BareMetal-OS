@@ -253,16 +253,29 @@ start32:
 
 	cld
 
-%macro debug 2
+%macro debuglog 2
+
 	push eax
 	mov al, %1
 	mov [0x000B809C], al
 	mov al, %2
 	mov [0x000B809E], al
 	pop eax
+
 %endmacro
 
-	debug '3' '2'
+%macro debuglog64 2
+
+	push rax
+	mov al, %1
+	mov [0x000B809C], al
+	mov al, %2
+	mov [0x000B809E], al
+	pop rax
+
+%endmacro
+
+	debuglog '3', '2'
 
 ; Clear out the first 4096 bytes of memory. This will store the 64-bit IDT, GDT, PML4, and PDP
 	mov ecx, 1024
@@ -270,14 +283,14 @@ start32:
 	mov edi, eax
 	rep stosd
 
-	debug 'N' '1'
+	debuglog 'N', '1'
 
 ; Clear memory for the Page Descriptor Entries (PDE - PDE+0x3FFFF)
 	mov edi, PDE
 	mov ecx, 65536
 	rep stosd
 
-	debug 'N' '2'
+	debuglog 'N', '2'
 
 
 
@@ -288,7 +301,7 @@ start32:
 	mov ecx, (gdt64_end - gdt64)
 	rep movsb	; Move it to final pos.
 
-	debug 'N' '3'
+	debuglog 'N', '3'
 
 
 ; Create the Level 4 Page Map. (Maps 4GBs of 2MB pages)
@@ -343,7 +356,7 @@ pd_again:	; Create a 2 MiB page
 	jne pd_again	; Create 2048 2 MiB page maps.
 
 
-	debug 'M' '1'
+	debuglog 'M', '1'
 
 ; Load the GDT
 	lgdt [GDTR64-data_start+0x90000]
@@ -363,7 +376,7 @@ pd_again:	; Create a 2 MiB page
 	or eax, 0x00000101 	; LME (Bit 8)
 	wrmsr	; Write EFER
 
-	debug 'B' 'J'
+	debuglog 'B', 'J'
 
 
 ; Enable paging to activate long mode
@@ -381,7 +394,7 @@ USE64
 
 start64:
 
-	debug '6' '4'
+	debuglog64 '6', '4'
 
 	mov al, 2
 	mov ah, 22
@@ -418,7 +431,7 @@ start64:
 
 	lgdt [GDTR64-data_start+0x90000]	; Reload the GDT
 
-	debug 'A' '1'
+	debuglog64 'A', '1'
 
 ;(?)
 ; Patch Pure64 AP code	; The AP's will be told to start execution at 0x8000
@@ -439,7 +452,7 @@ buildem:
 	jne buildem
 	; We have 64 GiB mapped now (fixme, for more?)
 
-	debug 'A' '2'
+	debuglog64 'A', '2'
 
 
 ; Build a temporary IDT
@@ -518,7 +531,7 @@ make_interrupt_gates: 	; make gates for the other interrupts
 
 	lidt [IDTR64]	; load IDT register
 
-	debug 'A' '4'
+	debuglog64 'A', '4'
 
 ; Clear memory 0xf000 - 0xf7ff for the infomap (2048 bytes)
 	xor rax, rax
@@ -530,19 +543,19 @@ clearmapnext:
 	cmp rcx, 0
 	jne clearmapnext
 
-	debug 'B' '1'
+	debuglog64 'B', '1'
 
 	call init_acpi	; Find and process the ACPI tables
 
-	debug 'B' '2'
+	debuglog64 'B', '2'
 
 	call init_cpu	; Configure the BSP CPU
 
-	debug 'B' '3'
+	debuglog64 'B', '3'
 
 	call init_pic	; Configure the PIC(s), also activate interrupts
 
-	debug 'B' '4'
+	debuglog64 'B', '4'
 
 ; Make sure exceptions are working.
 ;	xor rax, rax
@@ -563,7 +576,7 @@ clearmapnext:
 ;; 	add rax, 0x0000000000050400	; stacks decrement when you "push", start at 1024 bytes in
 ;; 	mov rsp, rax	; Pure64 leaves 0x50000-0x9FFFF free so we use that
 
-	debug 'B' '6'
+	debuglog64 'B', '6'
 
 ; Calculate amount of usable RAM from Memory Map
 	xor rcx, rcx
@@ -597,7 +610,7 @@ endmemcalc:
 	and ecx, 0xFFFFFFFE	; Make sure it is an even number (in case we added 1 to an even number)
 	mov dword [mem_amount], ecx
 
-	debug 'C' '1'
+	debuglog64 'C', '1'
 
 ; Convert CPU speed value to string
 	xor rax, rax
@@ -670,7 +683,7 @@ nextIOAPIC:
 	mov rsi, msg_done
 	call os_print_string
 
-	debug 'D' '1'
+	debuglog64 'D', '1'
 
 ; Print info on CPU and MEM
 	mov ax, 0x0004
@@ -703,7 +716,7 @@ nextIOAPIC:
 	mov rsi, msg_startingkernel
 	call os_print_string
 
-	debug ' ' ' ' ;  clear debug info
+	debuglog64 ' ', ' ' ;  clear debug info
 
 ; Clear all registers (skip the stack pointer)
 	xor eax, eax	; These 32-bit calls also clear the upper bits of the 64-bit registers
