@@ -84,7 +84,6 @@ check_A20:
 
 ; Set up RTC
 ; Port 0x70 is RTC Address, and 0x71 is RTC Data
-; http://www.nondot.org/sabre/os/files/MiscHW/RealtimeClockFAQ.txt
 rtc_poll:
 	mov al, 0x0A			; Status Register A
 	out 0x70, al			; Select the address
